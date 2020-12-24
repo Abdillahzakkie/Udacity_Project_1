@@ -61,17 +61,15 @@ class Blockchain {
      * Note: the symbol `_` in the method name indicates in the javascript convention 
      * that this method is a private method. 
      */
-    _addBlock(block) {
+    async _addBlock(block) {
         let self = this;
         try {
             block.height = self.chain.length;
             block.time = new Date().getTime().toString().slice(0, -3);
             block.hash = SHA256(block);
 
-            self.chain = [...self.chain, new BlockClass.Block(block)]
-        } catch (error) {
-            
-        }
+            self.chain = [...self.chain, new BlockClass.Block(block)];
+        } catch (error) { return error }
     }
 
     /**
@@ -106,7 +104,7 @@ class Blockchain {
      * @param {*} signature 
      * @param {*} star 
      */
-    submitStar(address, message, signature, star) {
+    async submitStar(address, message, signature, star) {
         let self = this;
         try {
             const time = parseInt(message.split(':')[1]);
@@ -117,6 +115,8 @@ class Blockchain {
             }
             const verifyMessage = bitcoinMessage.verify(message, address, signature);
             if(!verifyMessage) return new Error("submitStar: Unable to verify message");
+            
+            if(!validateChain()) throw new Error();
             this._addBlock(star);
         } catch (error) { return error }
     }
@@ -190,6 +190,7 @@ class Blockchain {
                 }
             }, [null])
             if(errorLog.length !== 0) return new Error(errorLog);
+            return true;
         } catch (error) { return error }
     }
 

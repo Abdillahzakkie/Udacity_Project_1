@@ -118,6 +118,18 @@ class BlockchainController {
         });
     }
 
+    // This endpoint allows you to vlidate chain
+    validateChain() {
+        this.app.get("/blocks/validateChain", async (_, res) => {
+            try {
+                let _validateChain = await this.blockchain.validateChain();
+                if(!_validateChain) throw new Error();
+                return res.status(200).send();
+            } catch (error) {
+                return res.status(500).send("Unable to valid chain");
+            }
+        });
+    }
 }
 
 module.exports = (app, blockchainObj) => { return new BlockchainController(app, blockchainObj);}
